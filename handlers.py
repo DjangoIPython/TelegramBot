@@ -1,10 +1,15 @@
 # Импортируем необходимые компоненты
 from bs4 import BeautifulSoup
-from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, ParseMode
+from glob import glob
+from random import choice
+import requests
+
 from telegram.ext import ConversationHandler
+from telegram import ParseMode
+from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardRemove
 
 from utility import get_keyboard
-import requests
 
 
 # функция sms() будет вызвана пользователем при отправке команды start,
@@ -13,6 +18,13 @@ def sms(bot, update):
     print('Кто-то отправил команду /start. Что мне делать?')  # вывод сообщения в консоль при отправки команды /start
     bot.message.reply_text('Здравствуйте, {}! \nПоговорите со мной!'
                            .format(bot.message.chat.first_name), reply_markup=get_keyboard())  # отправляем ответ
+
+
+# функция отправляет случайную картинку
+def send_meme(bot, update):
+    lists = glob('images/*')  # создаем список из названий картинок
+    picture = choice(lists)  # берем из списка одну картинку
+    update.bot.send_photo(chat_id=bot.message.chat.id, photo=open(picture, 'rb'))  # отправляем картинку
 
 
 # функция парсит анекдоты
