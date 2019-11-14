@@ -4,20 +4,23 @@ from glob import glob
 from random import choice
 import requests
 
+from emoji import emojize
 from telegram.ext import ConversationHandler
 from telegram import ParseMode
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 
 from utility import get_keyboard
+from utility import SMILE
 
 
 # функция sms() будет вызвана пользователем при отправке команды start,
 # внутри функции будет описана логика при ее вызове
 def sms(bot, update):
+    smile = emojize(choice(SMILE), use_aliases=True)  # для ответа добавили emoji
     print('Кто-то отправил команду /start. Что мне делать?')  # вывод сообщения в консоль при отправки команды /start
-    bot.message.reply_text('Здравствуйте, {}! \nПоговорите со мной!'
-                           .format(bot.message.chat.first_name), reply_markup=get_keyboard())  # отправляем ответ
+    bot.message.reply_text('Здравствуйте, {}! \nПоговорите со мной {}!'
+                           .format(bot.message.chat.first_name, smile), reply_markup=get_keyboard())  # отправляем ответ
 
 
 # функция отправляет случайную картинку
