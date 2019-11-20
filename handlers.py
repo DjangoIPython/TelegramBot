@@ -5,11 +5,12 @@ from random import choice
 import requests
 
 from emoji import emojize
-from telegram.ext import ConversationHandler
 from telegram import ParseMode
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
+from telegram.ext import ConversationHandler
 
+from mongodb import mdb, search_or_save_user
 from utility import get_keyboard
 from utility import SMILE
 
@@ -17,6 +18,8 @@ from utility import SMILE
 # функция sms() будет вызвана пользователем при отправке команды start,
 # внутри функции будет описана логика при ее вызове
 def sms(bot, update):
+    user = search_or_save_user(mdb, bot.effective_user, bot.message)
+    print(user)
     smile = emojize(choice(SMILE), use_aliases=True)  # для ответа добавили emoji
     print('Кто-то отправил команду /start. Что мне делать?')  # вывод сообщения в консоль при отправки команды /start
     bot.message.reply_text('Здравствуйте, {}! \nПоговорите со мной {}!'
