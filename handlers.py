@@ -10,7 +10,7 @@ from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
 
-from mongodb import mdb, search_or_save_user
+from mongodb import mdb, search_or_save_user, save_user_anketa
 from utility import get_keyboard
 from utility import SMILE
 
@@ -18,7 +18,7 @@ from utility import SMILE
 # функция sms() будет вызвана пользователем при отправке команды start,
 # внутри функции будет описана логика при ее вызове
 def sms(bot, update):
-    user = search_or_save_user(mdb, bot.effective_user, bot.message)
+    user = search_or_save_user(mdb, bot.effective_user, bot.message)  # получаем данные из базы данных
     print(user)
     smile = emojize(choice(SMILE), use_aliases=True)  # для ответа добавили emoji
     print('Кто-то отправил команду /start. Что мне делать?')  # вывод сообщения в консоль при отправки команды /start
@@ -93,6 +93,9 @@ def anketa_get_evaluation(bot, update):
 
 def anketa_comment(bot, update):
     update.user_data['comment'] = bot.message.text  # временно сохраняем ответ
+    user = search_or_save_user(mdb, bot.effective_user, bot.message)  # получаем данные из базы данных
+    anketa = save_user_anketa(mdb, user, update.user_data)  # передаем и получаем результаты анкеты
+    print(anketa)
     text = """Результат опроса:
     <b>Имя:</b> {name}
     <b>Возраст:</b> {age}
@@ -105,6 +108,9 @@ def anketa_comment(bot, update):
 
 
 def anketa_exit_comment(bot, update):
+    update.user_data['comment'] = None
+    user = search_or_save_user(mdb, bot.effective_user, bot.message)  # получаем данные из базы данных
+    save_user_anketa(mdb, user, update.user_data)  # передаем результаты анкеты
     text = """Результат опроса:
     <b>Имя:</b> {name}
     <b>Возраст:</b> {age}
