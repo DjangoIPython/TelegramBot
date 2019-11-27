@@ -62,8 +62,24 @@ def get_location(bot, update):
 
 
 def anketa_start(bot, update):
-    bot.message.reply_text('Как вас зовут?', reply_markup=ReplyKeyboardRemove())  # вопрос и убираем основную клавиатуру
-    return "user_name"  # ключ для определения следующего шага
+    user = search_or_save_user(mdb, bot.effective_user, bot.message)  # получаем данные из базы данных
+    if 'anketa' in user:
+        text = """Ваш предыдущий результат:
+        <b>Имя:</b> {name}
+        <b>Возраст:</b> {age}
+        <b>Оценка:</b> {evaluation}
+        <b>Комментарий:</b> {comment}
+        
+Данные будут обновлены!
+        Как вас зовут?
+        """.format(**user['anketa'])
+        bot.message.reply_text(
+            text, parse_mode=ParseMode.HTML, reply_markup=ReplyKeyboardRemove())  # вопрос и убираем основную клавиатуру
+        return "user_name"
+    else:
+        bot.message.reply_text(
+            'Как вас зовут?', reply_markup=ReplyKeyboardRemove())  # вопрос и убираем основную клавиатуру
+        return "user_name"  # ключ для определения следующего шага
 
 
 def anketa_get_name(bot, update):
