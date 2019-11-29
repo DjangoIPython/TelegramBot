@@ -28,6 +28,9 @@ def main():
     my_bot.dispatcher.add_handler(MessageHandler(Filters.regex('Анекдот'), get_anecdote))  # обрабатываем текс кнопки
     my_bot.dispatcher.add_handler(MessageHandler(Filters.contact, get_contact))  # обработчик полученного контакта
     my_bot.dispatcher.add_handler(MessageHandler(Filters.location, get_location))  # обработчик полученной геопозиции
+
+    my_bot.dispatcher.add_handler(CallbackQueryHandler(inline_button_pressed))
+
     my_bot.dispatcher.add_handler(
         ConversationHandler(entry_points=[MessageHandler(Filters.regex('Заполнить анкету'), anketa_start)],
                             states={

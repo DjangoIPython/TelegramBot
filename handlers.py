@@ -5,6 +5,7 @@ from random import choice
 import requests
 
 from emoji import emojize
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram import ParseMode
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
@@ -30,7 +31,23 @@ def sms(bot, update):
 def send_meme(bot, update):
     lists = glob('images/*')  # создаем список из названий картинок
     picture = choice(lists)  # берем из списка одну картинку
-    update.bot.send_photo(chat_id=bot.message.chat.id, photo=open(picture, 'rb'))  # отправляем картинку
+    inl_keyboard = InlineKeyboardMarkup([[
+        InlineKeyboardButton('👍', callback_data=1),
+        InlineKeyboardButton('👎', callback_data=-1)
+    ]])
+    update.bot.send_photo(
+        chat_id=bot.message.chat.id,
+        photo=open(picture, 'rb'),
+        reply_markup=inl_keyboard)  # отправляем картинку и inline клавиатуру
+
+
+def inline_button_pressed(bot, update):
+    # print(bot.callback_query)
+    query = bot.callback_query
+    update.bot.edit_message_caption(
+        caption='Спасибо вам за ваш выбор!',
+        chat_id=query.message.chat.id,
+        message_id=query.message.message_id)  # уберем inline клавиатуру выведем текст
 
 
 # функция парсит анекдоты
