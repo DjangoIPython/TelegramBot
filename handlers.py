@@ -11,7 +11,7 @@ from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 from telegram.ext import ConversationHandler
 
-from mongodb import mdb, search_or_save_user, save_user_anketa
+from mongodb import mdb, search_or_save_user, save_user_anketa, save_picture_name, save_file_id, save_like_dislike
 from utility import get_keyboard
 from utility import SMILE
 
@@ -31,19 +31,23 @@ def sms(bot, update):
 def send_meme(bot, update):
     lists = glob('images/*')  # создаем список из названий картинок
     picture = choice(lists)  # берем из списка одну картинку
+    image = save_picture_name(mdb, picture)  # получаем из базы данных словарь
     inl_keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton('👍', callback_data=1),
-        InlineKeyboardButton('👎', callback_data=-1)
+        InlineKeyboardButton(f"👍 {image['like']}", callback_data=1),
+        InlineKeyboardButton(f"👎 {image['dislike']}", callback_data=-1)
     ]])
-    update.bot.send_photo(
+    msg = update.bot.send_photo(
         chat_id=bot.message.chat.id,
         photo=open(picture, 'rb'),
         reply_markup=inl_keyboard)  # отправляем картинку и inline клавиатуру
+    save_file_id(mdb, picture, msg)  #
 
 
 def inline_button_pressed(bot, update):
     # print(bot.callback_query)
-    query = bot.callback_query
+    query = bot.callback_query  # данные которые приходят после нажатия кнопки
+    data = int(query.data)  # получаем данные нажатой кнопки (1 или -1)
+    save_like_dislike(mdb, query, data)  # отправляем в бд
     update.bot.edit_message_caption(
         caption='Спасибо вам за ваш выбор!',
         chat_id=query.message.chat.id,
